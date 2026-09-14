@@ -1,6 +1,5 @@
-import { readFile } from 'fs';
-import fs from 'fs/promises';
-import {PDFParse} from 'pdf-parse';
+import { readFile } from 'fs/promises';
+import { PDFParse } from 'pdf-parse';
 
 
 /**
@@ -11,10 +10,10 @@ import {PDFParse} from 'pdf-parse';
 export const extractTextFromPDF = async (filePath) => {
   //pdf parser expects a Uint8Array not buffer
   try {
-    const dataBuffer = readFile(filePath);
-    const parser = new PDFParser(new Uint8Array(dataBuffer));
-    
+    const dataBuffer = await readFile(filePath);
+    const parser = new PDFParse({ data: dataBuffer });
     const data = await parser.getText();
+    await parser.destroy();
     
     return {
       text: data.text,

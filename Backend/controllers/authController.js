@@ -33,7 +33,7 @@ export const register = async (req, res, next) => {
     }
 
   
-    const user = await createUser(username, email, password);
+    const user = await User.create({ username, email, password });
 
     
     const token = generateToken(user._id);
@@ -157,6 +157,14 @@ export const getProfile = async (req, res, next) => {
 export const updateProfile = async (req, res, next) => {
   try {
     const { username, email, profileImage } = req.body;
+
+    if (username !== undefined || email !== undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'Username and email cannot be changed',
+        statusCode: 400
+      });
+    }
 
     const user = await User.findById(req.user.id || req.userId);
 

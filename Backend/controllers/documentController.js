@@ -31,16 +31,16 @@ export const uploadDocument=async (req,res,next)=>{
       })
     }
     // Construct the URL of the uploaded file
-    const baseUrl=`http://localhost:$(process.env.PORT||8000)`;
+    const baseUrl = `http://localhost:${process.env.PORT || 8000}`;
     const fileUrl = `${baseUrl}/uploads/documents/${req.file.filename}`;
 
     // Create document 
     const document = await Document.create({
       userId:req.user._id,
       title,
-      filename: req.file.originalname,
+      fileName: req.file.originalname,
       filePath: fileUrl,
-      fileSize: req.file.szie,
+      fileSize: req.file.size,
       status: 'processing'
     });
 
@@ -73,7 +73,7 @@ const processPDF=async (documentId ,filePath)=>{
     const chunks=chunkText(text,500,50);
 
     // Update the document
-    await Document.findOneAndUpdate(documentId,{
+    await Document.findByIdAndUpdate(documentId,{
       extractedText:text,
       chunks:chunks,
       status:'ready'
@@ -100,7 +100,7 @@ export const getDocuments = async (request, response, next) => {
     const documents = await Document.aggregate([
       {
         $match: {
-          userId: new mongoose.Types.ObjectId(request.user_id)
+          userId: new mongoose.Types.ObjectId(request.user._id)
         }
       },
       {
@@ -135,7 +135,7 @@ export const getDocuments = async (request, response, next) => {
       },
       {
         $sort: {
-          uploadDocument: -1
+          uploadDate: -1
         }
       }
     ]);
@@ -158,11 +158,11 @@ export const getDocuments = async (request, response, next) => {
 export const getDocument = async (request, response, next) => {
   try{
     const document = await Document.findOne({
-      _id:req.params.id,
-      userId:req.user._id
+      _id: request.params.id,
+      userId: request.user._id
     });
     if(!document ){
-      return res.status(404).json({
+      return response.status(404).json({
         success:false,
         error:'Document not found',
         statusCode:404
@@ -170,8 +170,8 @@ export const getDocument = async (request, response, next) => {
     }
 
     // Get count of associated flashcards and quizzes
-    const flashcardCount =await Flashcard.countDocuments({documentId:document._id,userId:req.user._id});
-    const quizCount =await Quiz.countDocuments({documentId:document._id,userId:req.user._id});
+    const flashcardCount = await Flashcard.countDocuments({ documentId: document._id, userId: request.user._id });
+    const quizCount = await Quiz.countDocuments({ documentId: document._id, userId: request.user._id });
 
     //Update last Accessed
     document.lastAccessed=Date.now();
@@ -182,7 +182,7 @@ export const getDocument = async (request, response, next) => {
     documentData.flashcardCount=flashcardCount;
     documentData.quizCount=quizCount;
 
-    res.status(200).json({
+    response.status(200).json({
       success:true,
       data:documentData
     });

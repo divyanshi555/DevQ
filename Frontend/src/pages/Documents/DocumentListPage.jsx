@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import documentService from '../../services/documentService';
 import Spinner from '../../components/common/Spinner';
 import DocumentCard from '../../components/documents/DocumentCard';
+import Button from '../../components/common/Button';
 
 const DocumentListPage = () => {
   const [documents,setDocuments]=useState([]);
@@ -121,23 +122,23 @@ const DocumentListPage = () => {
     }
     return (
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'>
-        {documents?.map((doc)=>{
+        {documents?.map((doc)=>(
           <DocumentCard
           key={doc._id}
           document={doc}
           onDelete={handleDeleteRequest}
           />
-        })}
+        ))}
       </div>
     );
   };
 
 
   return (
-    <div className=' min-h-screen'>
+    <div className='relative min-h-screen'>
       {/*Subtle background pattern */}
-      <div className=' absolute inset-0 bg-[radial-gradient    (#e5e7eb_1px,transparent_1px)] bg-size-[16px_16px] opacity30 pointer-events-none'>
-        <div className='relative max-w-7xl mx-auto'>
+      <div className='absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[16px_16px] opacity-30 pointer-events-none' />
+      <div className='relative max-w-7xl mx-auto'>
           {/*Header */}
           <div className='flex items-center justify-between mb-10'>
             <div>
@@ -145,18 +146,15 @@ const DocumentListPage = () => {
                 My Documents
               </h1>
               <p className='text-slate-500 text-sm'>
-                Oraganize your learnin materials
+                Organize your learning materials
               </p>
             </div>
-            {documents.length>0 && (
-              <Button onClick={()=>setIsUploadModalOpen(true)}>
-                <Plus className='w-4 h-4' strokeWidth={2.5}/>
-                Uplaod Document
-              </Button>
-            )}
+            <Button onClick={()=>setIsUploadModalOpen(true)}>
+              <Plus className='w-4 h-4' strokeWidth={2.5}/>
+              Upload document
+            </Button>
           </div>
           {renderContent()}
-        </div>
       </div>
 
       {isUploadModalOpen && (<div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm'>

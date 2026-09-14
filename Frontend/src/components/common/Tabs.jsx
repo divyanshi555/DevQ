@@ -3,22 +3,19 @@ import React from 'react'
 const Tabs = ({tabs,activeTab,setActiveTab}) => {
   return (
     <div className='w-full'>
-      <div className='relative border border-slate-100'>
-        <nav className='flex gap-2 '>
+      <div className='relative border-b border-slate-200/70'>
+        <nav className='flex gap-1 overflow-x-auto'>
           {tabs.map((tab)=>(
             <button
               key={tab.name}
               onClick={()=>setActiveTab(tab.name)}
-              className={`relative pb-4 px-2 md:px-6 font-semibold transition-all duration-200 ${
+              className={`relative whitespace-nowrap pb-4 px-3 md:px-5 text-sm font-semibold transition-all duration-200 ${
                 activeTab===tab.name ? 'text-emerald-600': 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <span className='relative z-10'>{tabs.label}</span>
+              <span className='relative z-10'>{tab.label}</span>
               {activeTab===tab.name && (
                 <div className='absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-emerald-500 to-teal-500 rounded-full shadow-lg shadow-emerald-500/25'/>
-              )}
-              {activeTab === tab.name && (
-                <div className='absolute inset-0 bg-linear-to-b from-emerald-500 to-transparent rounded-t-xl -z-10'/>
               )}
             </button>
           ))}

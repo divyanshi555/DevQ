@@ -68,9 +68,9 @@ const DashboardPage = () => {
   ];
 
   return (
-    <div className='min-h-screen'>
-      <div className='aboslute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[16px_16px] opacity-30 pointer-events-none'>
-        <div className='relative max-w-7xl mx-auto'>
+    <div className='relative min-h-screen'>
+      <div className='absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[16px_16px] opacity-30 pointer-events-none' />
+      <div className='relative max-w-7xl mx-auto'>
           {/*Header */}
           <div className='mb-6'>
             <h1 className='text-2xl font-medium text-slate-900 tracking-tight mb-2'>
@@ -163,7 +163,6 @@ const DashboardPage = () => {
               </div>
             )}
           </div>
-        </div>
       </div>
     </div>
   )

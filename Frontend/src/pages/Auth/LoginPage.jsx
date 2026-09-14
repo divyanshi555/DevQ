@@ -20,8 +20,8 @@ const LoginPage = () => {
     setError('');
     setLoading(true);
     try{
-      const {token,user}=await authService.login(email,password);
-      login(user,token);
+      const { data } = await authService.login(email, password);
+      login(data.user, data.token);
       toast.success('Logged in successfully');
       navigate('/dashboard');
     }catch(err){

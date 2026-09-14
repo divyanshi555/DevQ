@@ -30,15 +30,37 @@ const ChatInterface = () => {
       }finally{
         setInitialLoading(false);
       }
-    }
+    };
+    fetchChatHistory();
   },[documentId]);
 
   useEffect(()=>{
     scrollToBotton();
   },[history]);
 
+  const renderMessage = (msg, index) => {
+    const isUser = msg.role === 'user';
+    return (
+      <div key={index} className={`flex items-center gap-3 my-4 ${isUser ? 'justify-end' : ''}`}>
+        {!isUser && (
+          <div className='w-9 h-9 rounded-xl bg-linear-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/25 flex items-center justify-center shrink-0'>
+            <Sparkles className='w-4 h-4 text-white' strokeWidth={2} />
+          </div>
+        )}
+        <div className={`max-w-lg p-4 rounded-2xl shadow-sm ${isUser ? 'bg-linear-to-br from-emerald-500 to-teal-500 text-white rounded-bl-md' : 'bg-white border border-slate-200/60 text-slate-800 rounded-bl-md'}`}>
+          {isUser ? <p className='text-sm leading-relaxed'>{msg.content}</p> : <MarkdownRenderer content={msg.content} />}
+        </div>
+        {isUser && (
+          <div className='w-9 h-9 rounded-xl bg-linear-to-br from-slate-200 to-slate-300 flex items-center justify-center text-slate-700 font-semibold text-sm shrink-0 shadow-sm'>
+            {user?.username?.charAt(0).toUpperCase() || 'U'}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const handleSendMessage=async(e)=>{
-    e,preventDefault();
+    e.preventDefault();
     if(!message.trim())return;
 
     const userMessage={role:'user',content:message,timestamp:new Date()};
@@ -58,7 +80,7 @@ const ChatInterface = () => {
     } catch (error) {
       console.error('Chat error:',error);
       const errorMessage ={
-        role:'assisatant',
+        role:'assistant',
         content:'Sorry, I encountered an error.Please try again.',
         timestamp:new Date()
       };
@@ -66,54 +88,10 @@ const ChatInterface = () => {
     }finally{
       setLoading(false);
     }
-
-    const renderMessage=(msg,index)=>{
-      const isUser=msg.role==='user';
-      return(
-        <div key={index} className={`flex items-center gap-3 my-4 ${isUser ? 'justify-end':''}`}>
-          {!isUser && (
-            <div className='w-9 h-9 rounded-xl bg-linear-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/25 flex items-center justify-center shrink-0'>
-            <Sparkles className='w-4 h-4 text-white' strokeWidth={2}/>
-          </div>
-          )}
-          <div className={`max-w-lg p-4 rounded-2xl shadow-sm ${
-            isUser
-            ? 'bg-linear-to-br from-emerald-500 to-teal-500 text-white rounded-bl-md'
-            :'bg-white border border-slate-200/60 text-slate-800 rounded-bl-md'
-          }`}>
-            {isUser ? (
-              <p className='text-sm leading-relaxed'>{msg.content}</p>
-            ):(
-              <div className='prose prose-sm max-w-none prose-slate'>
-                <MarkdownRenderer content ={msg.content}/>
-              </div>
-            )}
-          </div>
-          {isUser && (
-            <div className='w-9 h-9 rounded-xl bg-linear-to-br from-slate-200 to-slate-300 flex items-center justify-center text-slate-700 font-semibold text-sm shrink-0 shadow-sm'>
-              {user?.username?.charAt(0).toUpperCase()|| 'U'}
-            </div>
-          )}
-        </div>
-      )
-    };
-
-    if(true){
-      return(
-        <div className='flex flex-col bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-2xl items-center justify-center shadow-xl shadow-slate-200/50'>
-          <div className='w-14 h-14 rounded-2xl bg-linear-to-br from-emerald-100 to-teal-100 flex items-center justify-center mb-4'>
-            <MessageSquare className='w-7 h-7 text-emerald-600' strokeWidth={2}/>
-          </div>
-          <Spinner/>
-          <p className='text-sm text-slate-500 mt-3 font-medium'>Loading chat history...</p>
-        </div>
-
-      );
-    }
   };
 
   return (
-    <div className='flex flex-col h-[70h] bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden'>
+    <div className='flex flex-col h-[70vh] bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden'>
       {/*Message Area*/}
       <div className='flex-1 p-6 overflow-y-auto bg-linear-to-br from-slate-50/50 via-white/5- to-slate-50/50 '>
         {history.length===0?(
@@ -125,7 +103,7 @@ const ChatInterface = () => {
             <p className='tetx-sm text-slate-500'>Ask me anything about the document!</p>
           </div>
         ):(
-          history.map(renderMessage())
+          history.map(renderMessage)
         )}
         <div ref={messageEndRef}/>
         {loading &&(

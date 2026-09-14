@@ -54,7 +54,7 @@ export const getAllFlashcardSets=async(req,res,next)=>{
  */
 export const reviewFlashcard=async(req,res,next)=>{
   try{
-    const flashcardSet = await Flashcard.find({
+    const flashcardSet = await Flashcard.findOne({
       'cards._id':req.params.cardId,
       userId:req.user._id
     });
@@ -101,7 +101,7 @@ export const reviewFlashcard=async(req,res,next)=>{
  */
 export const toggleStarFlashcard=async(req,res,next)=>{
   try{
-    const flashcardSet = await Flashcard.find({
+    const flashcardSet = await Flashcard.findOne({
       'cards._id':req.params.cardId,
       userId:req.user._id
     });
@@ -147,7 +147,7 @@ export const toggleStarFlashcard=async(req,res,next)=>{
  */
 export const deleteFlashcardSet=async(req,res,next)=>{
   try{
-    const flashcardSet = await Flashcard.find({
+    const flashcardSet = await Flashcard.findOne({
       _id:req.params.id,
       userId:req.user._id
     });

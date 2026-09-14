@@ -126,7 +126,7 @@ const AIActions = () => {
                 <button 
                   type='submit'
                   disabled={loadingAction==='explain' || !concept.trim()}
-                  className='shrink-0 h-11 px-5 bg-linear-to-br from-emerald-600 to-emerald-50 hover:from-emerald-600 hover:to-emerald-600 text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95'
+                  className='shrink-0 h-11 px-5 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95'
                 >
                   {loadingAction==='explain'?(
                     <span className='flex items-center gap-2'>

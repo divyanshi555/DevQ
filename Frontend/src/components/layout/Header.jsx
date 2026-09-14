@@ -31,10 +31,10 @@ const Header = ({toggleSidebar}) => {
               </div>
               <div>
                 <p className='text-sm font-semibold text-slate-900'>
-                  {user?.username || 'User'}
+                  {user?.username || 'Account'}
                 </p>
                 <p className='text-xs text-slate-500'>
-                  {user?.email || 'user@example.com'}
+                  {user?.email || 'Loading account'}
                 </p>
               </div>
             </div>

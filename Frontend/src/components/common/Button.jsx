@@ -3,7 +3,7 @@ import React from 'react'
 const Button = ({
   children,
   onClick,
-  type="botton",
+  type="button",
   disabled=false,
   className="",
   variant="primary",
@@ -17,7 +17,7 @@ const Button = ({
   };
   const sizeStyles={
     sm:'h-9 px-4 text-xs',
-    md:'h-11 px-5 tetx-sm',
+    md:'h-11 px-5 text-sm',
   };
 
   return (
@@ -30,7 +30,7 @@ const Button = ({
         variantStyles[variant],
         sizeStyles[size],
         className
-      ].join('')}
+      ].join(' ')}
     >
       {children}
     </button>

@@ -14,7 +14,7 @@ const formatFileSize=(bytes)=>{
     size/=1024;
     unitIndex++;
   }
-  return `${szie.toFixed(1)} ${units[unitIndex]}`;
+  return `${size.toFixed(1)} ${units[unitIndex]}`;
 };
 
 const DocumentCard = ({ document, onDelete }) => {

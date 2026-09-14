@@ -31,7 +31,7 @@ const loginValidation=[
 ];
 
 // Public routes
-router.post('/rgeister',registerValidation,register);
+router.post('/register',registerValidation,register);
 router.post('/login',loginValidation,login);
 
 // Protected routes
