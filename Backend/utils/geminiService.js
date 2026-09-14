@@ -29,7 +29,7 @@ export const generateFlashcards = async (Text,count=10)=>{
 
   try{
     const response = await ai.models.generateContent({
-      model:"gemini-2.5-flash-lite",
+      model:"gemini-3.5-flash-lite",
       contents:prompt
     });
 
@@ -88,7 +88,7 @@ ${text.substring(0, 1500)}`;
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-lite',
+      model: 'gemini-3.5-flash-lite',
       contents: prompt,
     });
 
@@ -159,7 +159,7 @@ export const generateSummary = async (text)=>{
 
   try{
     const response = await ai.models.generateContent({
-      model:"gemini-2.5-flash-lite",
+      model:"gemini-3.5-flash-lite",
       contents:prompt
     });
     const generateText = response.text;
@@ -190,7 +190,7 @@ export const chatWithContext = async (question,chunks)=>{
   `;
   try{
     const response = await ai.models.generateContent({
-      model : "gemini-2.5-flash-lite",
+      model : "gemini-3.5-flash-lite",
       contents: prompt,
     });
     const generateText = response.text;
@@ -216,7 +216,7 @@ export const explainConcept= async (concept,context)=>{
 
   try{
     const resonse = await ai.models.generateContent({
-      model:"gemini-2.5-flash-lite",
+      model:"gemini-3.5-flash-lite",
       contents:prompt,
     });
     const generateText=response.text;
