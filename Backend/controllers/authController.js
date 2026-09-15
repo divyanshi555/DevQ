@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import {deleteImageFromCloudinary, uploadImageBufferToCloudinary} from '../utils/cloudinaryUpload.js';
 
 // Generate JWT token
 const generateToken=(id)=>{
@@ -155,8 +156,9 @@ export const getProfile = async (req, res, next) => {
 * @access Private
  */
 export const updateProfile = async (req, res, next) => {
+  let uploadedImagePublicId;
   try {
-    const { username, email, profileImage } = req.body;
+    const { username, email } = req.body;
 
     if (username !== undefined || email !== undefined) {
       return res.status(400).json({
@@ -170,7 +172,20 @@ export const updateProfile = async (req, res, next) => {
 
     if (username) user.username = username;
     if (email) user.email = email;
-    if (profileImage) user.profileImage = profileImage;
+    if (req.file) {
+      const uploadResult = await uploadImageBufferToCloudinary(
+        req.file.buffer,
+        `devq/${user._id}/profile`,
+        'avatar'
+      );
+      uploadedImagePublicId = uploadResult.public_id;
+      const previousImagePublicId = user.profileImagePublicId;
+      user.profileImage = uploadResult.secure_url;
+      user.profileImagePublicId = uploadResult.public_id;
+      if (previousImagePublicId) {
+        await deleteImageFromCloudinary(previousImagePublicId).catch(() => {});
+      }
+    }
 
     await user.save();
 
@@ -180,11 +195,15 @@ export const updateProfile = async (req, res, next) => {
         id: user._id,
         username: user.username,
         email: user.email,
-        profileImage: user.profileImage
+        profileImage: user.profileImage,
+        profileImagePublicId: user.profileImagePublicId
       },
       message: "Profile updated successfully"
     });
   } catch (error) {
+    if (uploadedImagePublicId) {
+      await deleteImageFromCloudinary(uploadedImagePublicId).catch(() => {});
+    }
     next(error);
   }
 };

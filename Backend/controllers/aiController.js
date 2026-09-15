@@ -181,6 +181,8 @@ export const generateSummary = async (req,res,next)=>{
  */
 export const chat = async (req,res,next)=>{
   try{
+    const {documentId, question} = req.body;
+
     if(!documentId || !question){
       return res.status(400).json({
         success:false,
@@ -196,7 +198,7 @@ export const chat = async (req,res,next)=>{
     });
 
     if(!document){
-      return res.staus(404).json({
+      return res.status(404).json({
         success:false,
         error:'Document not found or not ready',
         statusCode:404
@@ -204,7 +206,7 @@ export const chat = async (req,res,next)=>{
     }
 
     // Find relevant chunks
-    const relevatChunks = findRelevatChunks(document.chunks,question , 3);
+    const relevantChunks = findRelevantChunks(document.chunks,question , 3);
     const chunkIndices = relevantChunks.map(c=>c.chunkIndex);
 
 
@@ -218,16 +220,16 @@ export const chat = async (req,res,next)=>{
       chatHistory= await ChatHistory.create({
         userId: req.user._id,
         documentId: document._id,
-        message:[]
+        messages:[]
       });
     }
 
     // Generate response using Gemini
-    const answer = await geminiService.chatWithContext(question,relevatChunks);
+    const answer = await geminiService.chatWithContext(question,relevantChunks);
 
 
     // Save conversation
-    chatHistory.message.push(
+    chatHistory.messages.push(
       {
         role:'user',
         content : question,
@@ -289,8 +291,8 @@ export const explainConcept = async(req,res,next)=>{
     }
 
     // Find relevant chunks for the concept
-    const relevatChunks = findRelevatChunks(document.chunks,question , 3);
-    const context = relevatChunks.map(c>c.content).join('\n\n');
+    const relevantChunks = findRelevantChunks(document.chunks,concept , 3);
+    const context = relevantChunks.map(c=>c.content).join('\n\n');
 
     // Generate explanation using gemini
     const explanation = await geminiService.explainConcept(concept,context);
@@ -300,7 +302,7 @@ export const explainConcept = async(req,res,next)=>{
       data:{
         concept,
         explanation,
-        relevantChunks:relevatChunks.map(c=>c.chunkIndex)
+        relevantChunks:relevantChunks.map(c=>c.chunkIndex)
       },
       message:'Explanation generated successfully'
     });
@@ -333,7 +335,7 @@ export const getChatHistory = async (req,res,next)=>{
     }).select('messages'); //Only retrieve the message array
 
     if(!chatHistory){
-      return res.staus(200).json({
+      return res.status(200).json({
         success:true,
         data:[], // Retrun an empty array if no chat history found
         message:'No chat history found for this document'

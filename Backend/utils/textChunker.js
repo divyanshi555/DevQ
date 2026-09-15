@@ -16,7 +16,7 @@ export const chunkText=(text, chunkSize = 500, overlap = 50)=> {
     .trim();
 
   // Try to split by paragraphs (single or double newlines)
-  const paragraphs = cleanText.split('/\n+/').filter(p => p.trim().length > 0);
+  const paragraphs = cleanText.split(/\n+/).filter(p => p.trim().length > 0);
 
   const chunks = [];
   let currentChunk = [];
@@ -32,7 +32,7 @@ export const chunkText=(text, chunkSize = 500, overlap = 50)=> {
       if (currentChunk.length > 0) {
         chunks.push({
           content: currentChunk.join('\n\n'),
-          index: chunkIndex++,
+          chunkIndex: chunkIndex++,
           pageNumber: 0
         });
         currentChunk = [];
@@ -46,7 +46,7 @@ export const chunkText=(text, chunkSize = 500, overlap = 50)=> {
         const chunkWords = paragraphWords.slice(i, i + chunkSize);
         chunks.push({
           content: chunkWords.join(' '),
-          index: chunkIndex++,
+          chunkIndex: chunkIndex++,
           pageNumber: 0
         });
         if (i + chunkSize >= paragraphWords.length) break;
@@ -58,14 +58,14 @@ export const chunkText=(text, chunkSize = 500, overlap = 50)=> {
     if (currentChunkWordCount + paragraphWordCount > chunkSize && currentChunk.length>0) {
       chunks.push({
         content: currentChunk.join('\n\n'),
-        index: chunkIndex++,
+        chunkIndex: chunkIndex++,
         pageNumber: 0
       });
 
       // Create overlap from previous chunk
       const prevChunkText=currentChunk.join(' ');
       const prevWords = prevChunkText.split(/\s+/);
-      const overlapText=prevWords.slice(~Math.min(overlap,prevWords.length)).join(' ');
+      const overlapText=prevWords.slice(-Math.min(overlap,prevWords.length)).join(' ');
         
       currentChunk = [overlapText, paragraph.trim()];
       currentChunkWordCount = overlapText.split(/\s+/).length + paragraphWordCount;
@@ -80,7 +80,7 @@ export const chunkText=(text, chunkSize = 500, overlap = 50)=> {
   if (currentChunk.length > 0) {
     chunks.push({
       content: currentChunk.join('\n\n'),
-      index: chunkIndex++,
+      chunkIndex: chunkIndex++,
       pageNumber: 0
     });
   }
@@ -94,7 +94,7 @@ export const chunkText=(text, chunkSize = 500, overlap = 50)=> {
       const chunkWords = allWords.slice(i, i + chunkSize);
       chunks.push({
         content: chunkWords.join(' '),
-        index: chunkIndex++,
+        chunkIndex: chunkIndex++,
         pageNumber: 0
       });
       if (i + chunkSize >= allWords.length) break;
@@ -182,8 +182,8 @@ export const findRelevantChunks=(chunks, query, maxChunks = 3)=> {
   return scoredChunks.filter(chunk => chunk.score > 0)
     .sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
-      if (b.matchedWords.length !== a.matchWords.length) {
-        return b.matchWords.length - a.matchWords.length;
+      if (b.matchedWords !== a.matchedWords) {
+        return b.matchedWords - a.matchedWords;
       }
       return a.chunkIndex-b.chunkIndex;
     }).slice(0, maxChunks);

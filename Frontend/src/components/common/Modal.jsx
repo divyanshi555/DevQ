@@ -2,6 +2,8 @@ import React from 'react'
 import { X } from "lucide-react";
 
 const Modal = ({isOpen,onClose,title,children}) => {
+  if (!isOpen) return null;
+
   return (
     <div className='fixed inset-0 z-50 overflow-y-auto'>
       <div className='flex items-center justify-center min-h-screen px-4 py-8'>
@@ -12,8 +14,10 @@ const Modal = ({isOpen,onClose,title,children}) => {
 
         <div className='relative w-full max-w-lg bg-white/95 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-slate-900/20 p-8 z-10 animate-in fade-in slide-in-from-bottom-4 duration-400 '>
           <button
+            type='button'
             onClick={onClose}
-            className='absolute top-6 right-6 w-8 h-8 items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-200'
+            aria-label='Close modal'
+            className='absolute top-6 right-6 flex w-8 h-8 items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-200'
           >
             <X className='w-5 h-5' strokeWidth={2}/>
           </button>
@@ -22,6 +26,7 @@ const Modal = ({isOpen,onClose,title,children}) => {
               {title}
             </h3>
           </div>
+          <div>{children}</div>
         </div>
       </div>
       

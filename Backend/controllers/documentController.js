@@ -3,7 +3,7 @@ import Flashcard from '../models/Flashcard.js';
 import Quiz from '../models/Quiz.js';
 import {extractTextFromPDF} from '../utils/pdfParser.js';
 import {chunkText} from '../utils/textChunker.js';
-import fs from 'fs/promises';
+import {uploadBufferToCloudinary, deleteFromCloudinary} from '../utils/cloudinaryUpload.js';
 import mongoose from 'mongoose';
 
 /*
@@ -12,6 +12,7 @@ import mongoose from 'mongoose';
 * @access Private
  */
 export const uploadDocument=async (req,res,next)=>{
+  let cloudinaryPublicId;
   try{
     if(!req.file){
       return res.status(400).json({
@@ -22,30 +23,32 @@ export const uploadDocument=async (req,res,next)=>{
     }
     const {title}=req.body;
     if(!title){
-      // If no title provided delete the upload file
-      await fs.unlink(req.file.path);
       return res.status(400).json({
         success:false,
         error:'Please provide document title',
         statusCode:404
       })
     }
-    // Construct the URL of the uploaded file
-    const baseUrl = `http://localhost:${process.env.PORT || 8000}`;
-    const fileUrl = `${baseUrl}/uploads/documents/${req.file.filename}`;
+    const uploadResult = await uploadBufferToCloudinary(
+      req.file.buffer,
+      `devq/${req.user._id}`,
+      req.file.originalname
+    );
+    cloudinaryPublicId = uploadResult.public_id;
 
     // Create document 
     const document = await Document.create({
       userId:req.user._id,
       title,
       fileName: req.file.originalname,
-      filePath: fileUrl,
+      cloudinaryUrl: uploadResult.secure_url,
+      cloudinaryPublicId: uploadResult.public_id,
       fileSize: req.file.size,
       status: 'processing'
     });
 
     // Process pdf in background 
-    processPDF(document._id,req.file.path).catch(err=>{
+    processPDF(document._id,req.file.buffer).catch(err=>{
       console.error('PDF processing error:',err);
     });
 
@@ -56,9 +59,8 @@ export const uploadDocument=async (req,res,next)=>{
     });
 
   }catch(error){
-    // Clean up file on error 
-    if(req.file){
-      await fs.unlink(req.file.path).catch(()=>{});
+    if(cloudinaryPublicId){
+      await deleteFromCloudinary(cloudinaryPublicId).catch(()=>{});
     }
     next(error);
   }
@@ -66,9 +68,9 @@ export const uploadDocument=async (req,res,next)=>{
 };
 
 // hepler function to process the pdf
-const processPDF=async (documentId ,filePath)=>{
+const processPDF=async (documentId ,buffer)=>{
   try{
-    const{text}=await extractTextFromPDF(filePath);
+    const{text}=await extractTextFromPDF(buffer);
     // Create chunks
     const chunks=chunkText(text,500,50);
 
@@ -212,8 +214,7 @@ export const deleteDocument = async (req,res,next)=>{
       });
     }
 
-    // Delete file from filesystem
-    await fs.unlink(document.filePath).catch(()=>{});
+    await deleteFromCloudinary(document.cloudinaryPublicId).catch(()=>{});
     // Delete document
     await document.deleteOne();
 

@@ -14,6 +14,7 @@ const DocumentDetailPage = () => {
   const {id}=useParams();
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [pdfUrl, setPdfUrl] = useState(null);
   const [activeTab, setActiveTab] = useState('Content');
 
   useEffect(()=>{
@@ -30,25 +31,42 @@ const DocumentDetailPage = () => {
     fetchDocumentDetails();
   },[id]);
 
-  // Hepler function to get full PDF URL
-  const getPdfUrl = () => {
-    if (!document?.data?.filePath) return null;
-    const filePath = document.data.filePath;
-    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-      return filePath;
-    }
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-    return `${baseUrl}${filePath.startsWith('/') ? '' : '/'}${filePath}`;
-  };
+  useEffect(() => {
+    let objectUrl;
+
+    const loadPdf = async () => {
+      if (!document?.data?.cloudinaryUrl) return;
+
+      try {
+        const response = await fetch(document.data.cloudinaryUrl);
+        if (!response.ok) throw new Error('Failed to load PDF');
+
+        const pdfBlob = new Blob([await response.arrayBuffer()], {
+          type: 'application/pdf'
+        });
+        objectUrl = URL.createObjectURL(pdfBlob);
+        setPdfUrl(objectUrl);
+      } catch (error) {
+        toast.error('Failed to load PDF preview.');
+      }
+    };
+
+    loadPdf();
+
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      setPdfUrl(null);
+    };
+  }, [document?.data?.cloudinaryUrl]);
 
   const renderContent = () => {
     if (loading) {
       return <Spinner />;
     }
-    if (!document?.data?.filePath) {
+    if (!pdfUrl) {
+      if (document?.data?.cloudinaryUrl) return <Spinner />;
       return <div className=' text-center p-8'>PDF not available.</div>
     }
-    const pdfUrl=getPdfUrl();
     return (
       <div className=' bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm'>
         <div className=' flex items-center justify-between p-4 bg-gray-50 border-b border-r-gray-300'>

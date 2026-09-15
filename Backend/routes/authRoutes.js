@@ -8,6 +8,7 @@ import{
   changePassword
 } from '../controllers/authController.js';
 import protect from '../middleware/auth.js';
+import profileUpload from '../config/profileMulter.js';
 
 const router = express.Router();
 
@@ -36,7 +37,7 @@ router.post('/login',loginValidation,login);
 
 // Protected routes
 router.get('/profile',protect,getProfile);
-router.put('/profile',protect,updateProfile);
+router.put('/profile',protect,profileUpload.single('profileImage'),updateProfile);
 router.post('/change-password',protect,changePassword);
 
 export default router;

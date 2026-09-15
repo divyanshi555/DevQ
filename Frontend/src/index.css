@@ -18,3 +18,26 @@
     background-color: #f8fafc;
   }
 }
+
+  @layer components {
+    .flashcard-scene {
+      perspective: 1200px;
+    }
+
+    .flashcard-inner {
+      transform-style: preserve-3d;
+    }
+
+    .flashcard-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flashcard-face {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .flashcard-back {
+      transform: rotateY(180deg);
+    }
+  }

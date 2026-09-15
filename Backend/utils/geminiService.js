@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import {GoogleGenAI} from "@google/genai";
-import { response } from 'express';
 
 dotenv.config();
 
@@ -47,6 +46,8 @@ export const generateFlashcards = async (Text,count=10)=>{
         if(line.startsWith('Q:')){
           question= line.substring(2).trim();
         }else if(line.startsWith('A:')){
+          answer = line.substring(2).trim();
+        }else if(line.startsWith('D:')){
           const diff = line.substring(2).trim().toLowerCase();
           if(['easy','medium','hard'].includes(diff)){
             difficulty=diff;
@@ -215,7 +216,7 @@ export const explainConcept= async (concept,context)=>{
   ${context.substring(0,1000)}`;
 
   try{
-    const resonse = await ai.models.generateContent({
+    const response = await ai.models.generateContent({
       model:"gemini-3.5-flash-lite",
       contents:prompt,
     });

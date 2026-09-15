@@ -16,7 +16,11 @@ const documentSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    filePath: {
+    cloudinaryUrl: {
+      type: String,
+      required: true
+    },
+    cloudinaryPublicId: {
       type: String,
       required: true
     },
