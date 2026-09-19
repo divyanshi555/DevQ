@@ -41,10 +41,16 @@ export const generateFlashcards = async (req,res,next)=>{
       parseInt(count)
     );
 
+    const existingSetCount = await Flashcard.countDocuments({
+      userId: req.user._id,
+      documentId: document._id,
+    });
+
     // Save to database
     const flashcardSet = await Flashcard.create({
       userId:req.user._id,
       documentId:document._id,
+      title: `${document.title} ${existingSetCount + 1}`,
       cards:cards.map(card=>({
         question:card.question,
         answer:card.answer,

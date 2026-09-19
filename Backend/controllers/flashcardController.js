@@ -1,4 +1,18 @@
 import Flashcard from "../models/Flashcard.js";
+import Document from "../models/Document.js";
+
+const ensureFlashcardSetTitle = async (flashcardSet) => {
+  if (flashcardSet.title) return;
+
+  const document = await Document.findById(flashcardSet.documentId).select('title');
+  const previousSets = await Flashcard.countDocuments({
+    userId: flashcardSet.userId,
+    documentId: flashcardSet.documentId,
+    createdAt: { $lt: flashcardSet.createdAt },
+  });
+
+  flashcardSet.title = `${document?.title || 'Flashcard Set'} ${previousSets + 1}`;
+};
 
 /*
 * @desc Get all flashcards for a document
@@ -79,6 +93,7 @@ export const reviewFlashcard=async(req,res,next)=>{
     // Update review info
     flashcardSet.cards[cardIndex].lastReviewed=new Date();
     flashcardSet.cards[cardIndex].reviewCount+=1;
+    await ensureFlashcardSetTitle(flashcardSet);
 
     await flashcardSet.save();
 
@@ -125,6 +140,7 @@ export const toggleStarFlashcard=async(req,res,next)=>{
 
     // Toggle star
     flashcardSet.cards[cardIndex].isStarred=!flashcardSet.cards[cardIndex].isStarred;
+    await ensureFlashcardSetTitle(flashcardSet);
 
     await flashcardSet.save();
 

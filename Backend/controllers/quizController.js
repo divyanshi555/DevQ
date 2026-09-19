@@ -92,7 +92,7 @@ export const submitQuiz = async (req,res,next)=>{
       const {questionIndex,selectedAnswer}=answer;
 
       if(questionIndex<quiz.questions.length){
-        const question = quiz.questions.length;
+        const question = quiz.questions[questionIndex];
         const isCorrect = selectedAnswer===question.correctAnswer;
 
         if(isCorrect)correctCount++;
