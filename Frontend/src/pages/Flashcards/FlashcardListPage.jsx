@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BookOpen, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Spinner from '../../components/common/Spinner';
+import EmptyState from '../../components/common/EmptyState';
 import Flashcard from '../../components/flashcards/Flashcard';
 import flashcardService from '../../services/FlashcardService';
 import moment from 'moment';
@@ -67,10 +68,10 @@ const FlashcardListPage = () => {
           </div>
         </div>
       ) : sets.length === 0 ? (
-        <div className='rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center'>
-          <BookOpen className='mx-auto mb-3 text-slate-400' size={32} />
-          <p className='text-sm text-slate-600'>No flashcard sets yet.</p>
-        </div>
+        <EmptyState
+          title='No Flashcards Yet'
+          description='Generate flashcards from your documents to start learning and reinforce your knowledge.'
+        />
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
           {sets.map((set) => (
