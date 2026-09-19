@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { BookOpen, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { BookOpen, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Spinner from '../../components/common/Spinner';
 import EmptyState from '../../components/common/EmptyState';
@@ -25,16 +25,33 @@ const FlashcardListPage = () => {
   };
 
   useEffect(() => {
+    // Load the user's sets when the listing page opens.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchSets();
   }, []);
 
   const handleToggleStar = async (cardId) => {
     try {
-      await flashcardService.toggleStar(cardId);
-      await fetchSets();
-    } catch (error) {
-      toast.error(error.message || 'Failed to update flashcard');
+      const response = await flashcardService.toggleStar(cardId);
+      if (response.data) updateSet(response.data);
+    } catch {
+      toast.error('Failed to update flashcard');
     }
+  };
+
+  const handleReview = async (cardId) => {
+    try {
+      const response = await flashcardService.reviewFlashcard(cardId, selectedCardIndex);
+      if (response.data) updateSet(response.data);
+      toast.success('Card reviewed');
+    } catch {
+      toast.error('Failed to review card');
+    }
+  };
+
+  const updateSet = (updatedSet) => {
+    setSelectedSet(updatedSet);
+    setSets((currentSets) => currentSets.map((set) => set._id === updatedSet._id ? updatedSet : set));
   };
 
   const getSetProgress = (set) => {
@@ -55,16 +72,16 @@ const FlashcardListPage = () => {
         <div className='space-y-5'>
           <button type='button' onClick={() => setSelectedSet(null)} className='text-sm font-semibold text-emerald-600 hover:text-emerald-700'>Back to sets</button>
           <div className='flex flex-col items-center pt-3'>
-            <Flashcard flashcard={selectedSet.cards[selectedCardIndex]} onToggleStar={handleToggleStar} />
-            <div className='mt-5 flex items-center gap-5'>
-              <button type='button' onClick={() => setSelectedCardIndex((current) => Math.max(0, current - 1))} disabled={selectedCardIndex === 0} className='inline-flex h-10 items-center gap-2 rounded-xl bg-slate-50 px-4 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-slate-100'>
-                <ChevronLeft size={16} /> Previous
-              </button>
-              <span className='text-sm font-semibold text-slate-500'>{selectedCardIndex + 1} / {selectedSet.cards.length}</span>
-              <button type='button' onClick={() => setSelectedCardIndex((current) => Math.min(selectedSet.cards.length - 1, current + 1))} disabled={selectedCardIndex === selectedSet.cards.length - 1} className='inline-flex h-10 items-center gap-2 rounded-xl bg-slate-100 px-4 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-slate-200'>
-                Next <ChevronRight size={16} />
-              </button>
-            </div>
+            <Flashcard
+              key={selectedSet.cards[selectedCardIndex]._id}
+              flashcard={selectedSet.cards[selectedCardIndex]}
+              cardIndex={selectedCardIndex}
+              cardCount={selectedSet.cards.length}
+              onToggleStar={handleToggleStar}
+              onReview={handleReview}
+              onPrevious={() => setSelectedCardIndex((current) => Math.max(0, current - 1))}
+              onNext={() => setSelectedCardIndex((current) => Math.min(selectedSet.cards.length - 1, current + 1))}
+            />
           </div>
         </div>
       ) : sets.length === 0 ? (
@@ -82,7 +99,7 @@ const FlashcardListPage = () => {
                 </span>
                 <div className='min-w-0'>
                   <h2 className='truncate text-base font-semibold text-slate-900'>
-                    {set.documentId?.title || 'Flashcard set'}
+                    {set.title || set.documentId?.title || 'Flashcard set'}
                   </h2>
                   <p className='mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500'>
                     Created {moment(set.createdAt).fromNow()}
