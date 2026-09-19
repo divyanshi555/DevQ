@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import flashcardService from "../../services/FlashcardService";
 import aiService from '../../services/aiService';
 import Spinner from '../common/Spinner';
+import EmptyState from '../common/EmptyState';
 import Flashcard from './Flashcard';
 
 const FlashcardManager = ({ documentId }) => {
@@ -88,17 +89,15 @@ const FlashcardManager = ({ documentId }) => {
       </div>
 
       {loading ? <Spinner /> : flashcardSets.length === 0 ? (
-        <div className='min-h-96 rounded-2xl border border-slate-200/70 bg-white shadow-lg shadow-slate-200/30 p-10 flex flex-col items-center justify-center text-center'>
-          <div className='w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4'>
-            <Brain size={30} />
-          </div>
-          <h4 className='text-lg font-semibold text-slate-900'>No Flashcards Yet</h4>
-          <p className='max-w-sm text-sm text-slate-500 mt-2'>Generate flashcards from your document to start learning and reinforce your knowledge.</p>
-          <button type='button' onClick={handleGenerateFlashcards} disabled={generating} className='inline-flex items-center gap-2 h-11 px-5 mt-6 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold shadow-lg shadow-emerald-500/20 disabled:opacity-50'>
+        <EmptyState
+          title='No Flashcards Yet'
+          description='Generate flashcards from your document to start learning and reinforce your knowledge.'
+        >
+          <button type='button' onClick={handleGenerateFlashcards} disabled={generating} className='mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 px-5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 disabled:opacity-50'>
             <Sparkles size={16} />
             {generating ? 'Generating...' : 'Generate Flashcards'}
           </button>
-        </div>
+        </EmptyState>
       ) : selectedSet ? (
         <div className='space-y-4'>
           <div className='flex items-center justify-between'>
