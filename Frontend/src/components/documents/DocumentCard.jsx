@@ -65,7 +65,7 @@ const DocumentCard = ({ document, onDelete }) => {
           {document.quizCount !== undefined && (
             <div className='flex items-center gap-1.5 px-2.5 py-1.5 bg-purple-50 rounded-lg'>
               <BrainCircuit className=' w-3.5 h-3.5 text-emerald-600' strokeWidth={2} />
-              <span className='text-xs font-semibold text-emerald-700'>{document.quizCount}</span>
+              <span className='text-xs font-semibold text-emerald-700'>{document.quizCount} Quiz </span>
             </div>
           )}
         </div>

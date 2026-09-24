@@ -153,17 +153,26 @@ ${text.substring(0, 1500)}`;
  * @returns {PromiseArrays<string>}
  */
 export const generateSummary = async (text)=>{
-  const prompt = `Provide a concise summary of the following text , highlighting the ky concepts,main ideas,and important points.Keep the summary clear and structured.'
-
-  Text:
-  ${text.substring(0,2000)}`;
-
   try{
+    if (!text || !text.trim()) {
+      throw new Error('Document does not contain readable text');
+    }
+
+    const prompt = `Provide a concise summary of the following text, highlighting the key concepts, main ideas, and important points. Keep the summary clear and structured.
+
+Text:
+${text.substring(0,12000)}`;
+
     const response = await ai.models.generateContent({
       model:"gemini-3.5-flash-lite",
       contents:prompt
     });
     const generateText = response.text;
+
+    if (!generateText?.trim()) {
+      throw new Error('The AI service returned an empty summary');
+    }
+
     return generateText
 
   }catch(error){

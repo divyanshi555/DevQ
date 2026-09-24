@@ -1,6 +1,7 @@
 import React from 'react'
 import {useAuth} from '../../context/AuthContext';
-import {Bell,User,Menu} from 'lucide-react'
+import {User,Menu} from 'lucide-react'
+import { Link } from 'react-router-dom';
 
 
 const Header = ({toggleSidebar}) => {
@@ -17,19 +18,13 @@ const Header = ({toggleSidebar}) => {
       </button>
       <div className='hidden md:block'></div>
       <div className='flex items-center gap-3'>
-          <button className='relative inline-flex items-center justify-center w-10 h-10 tetx-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200 group'>
-            <Bell size={20} strokeWidth={2} className='group-hover:scale-110 transition-transform duration-200'/>
-
-            <span className='absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-white'></span>
-          </button>
-
           {/*User Profile */}
           <div className='flex items-center gap-3 pl-3 border-l border-slate-200/60'>
-            <div className='flex items-center gap-3 px-3 py-1.5 rounded-xl hover:bg-slate-50 transition-colors duration-200 cursor-pointer group'>
+            <Link to='/profile' aria-label='Open profile' className='flex items-center gap-3 px-3 py-1.5 rounded-xl hover:bg-slate-50 transition-colors duration-200 cursor-pointer group'>
               {user?.profileImage ? (
                 <img src={user.profileImage} alt='' className='h-9 w-9 rounded-full object-cover shadow-md shadow-emerald-500/20' />
               ) : (
-                <div className='flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-md shadow-emerald-500/20'>
+                <div className='flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-emerald-400 to-teal-500 text-white shadow-md shadow-emerald-500/20'>
                   <User size={18} strokeWidth={2.5}/>
                 </div>
               )}
@@ -41,7 +36,7 @@ const Header = ({toggleSidebar}) => {
                   {user?.email || 'Loading account'}
                 </p>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
     </div>

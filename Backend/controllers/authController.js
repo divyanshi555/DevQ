@@ -185,6 +185,13 @@ export const updateProfile = async (req, res, next) => {
       if (previousImagePublicId) {
         await deleteImageFromCloudinary(previousImagePublicId).catch(() => {});
       }
+    } else if (req.body.removeProfileImage === 'true') {
+      const previousImagePublicId = user.profileImagePublicId;
+      user.profileImage = null;
+      user.profileImagePublicId = null;
+      if (previousImagePublicId) {
+        await deleteImageFromCloudinary(previousImagePublicId).catch(() => {});
+      }
     }
 
     await user.save();
