@@ -1,17 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Camera, Lock, Mail, User } from 'lucide-react';
+import { Camera, ImagePlus, Lock, Mail, Trash2, User } from 'lucide-react';
 import authService from '../../services/authService';
 import { useAuth } from '../../context/AuthContext';
+import Button from '../../components/common/Button';
+import Modal from '../../components/common/Modal';
 
 const ProfilePage = () => {
   const { user, updateUser } = useAuth();
   const [formData, setFormData] = useState({ username: '', email: '' });
-  const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isImageMenuOpen, setIsImageMenuOpen] = useState(false);
+  const imageInputRef = useRef(null);
+  const localPreviewRef = useRef(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -42,30 +46,56 @@ const ProfilePage = () => {
 
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
+    event.target.value = '';
     if (!file) return;
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
       return;
     }
-    setProfileImage(file);
-    setImagePreview(URL.createObjectURL(file));
+    if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
+    const localPreview = URL.createObjectURL(file);
+    localPreviewRef.current = localPreview;
+    setImagePreview(localPreview);
+    setIsImageMenuOpen(false);
+    saveProfileImage(file);
   };
 
-  const handleProfileSubmit = async (event) => {
-    event.preventDefault();
-    if (!profileImage) return;
-
+  const saveProfileImage = async (file) => {
     setSaving(true);
     try {
       const payload = new FormData();
-      payload.append('profileImage', profileImage);
+      payload.append('profileImage', file);
       const response = await authService.updateProfile(payload);
+      const savedImageUrl = response.data?.profileImage;
+      if (!savedImageUrl) {
+        throw new Error('The server did not return the saved profile picture');
+      }
       updateUser(response.data);
-      setProfileImage(null);
-      setImagePreview(response.data.profileImage);
+      setImagePreview(savedImageUrl);
       toast.success('Profile picture updated successfully');
     } catch (error) {
-      toast.error(error.message || 'Failed to update profile picture');
+      toast.error(error.error || error.message || 'Failed to update profile picture');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    setIsImageMenuOpen(false);
+    setSaving(true);
+    try {
+      const payload = new FormData();
+      payload.append('removeProfileImage', 'true');
+      const response = await authService.updateProfile(payload);
+      updateUser(response.data);
+      setImagePreview(null);
+      if (localPreviewRef.current) {
+        URL.revokeObjectURL(localPreviewRef.current);
+        localPreviewRef.current = null;
+      }
+      toast.success('Profile picture removed');
+    } catch (error) {
+      toast.error(error.message || 'Failed to remove profile picture');
     } finally {
       setSaving(false);
     }
@@ -105,20 +135,29 @@ const ProfilePage = () => {
         <p className='text-sm text-slate-500'>Manage your account details.</p>
       </div>
 
-      <form onSubmit={handleProfileSubmit} className='bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-xl shadow-slate-200/50 p-6 space-y-5'>
+      <div className='bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-xl shadow-slate-200/50 p-6 space-y-5'>
         <div className='flex items-center gap-4 pb-2'>
           <div className='relative'>
             {imagePreview ? (
-              <img src={imagePreview} alt='Profile preview' className='h-20 w-20 rounded-full object-cover ring-4 ring-emerald-50' />
+              <img
+                src={imagePreview}
+                alt='Profile preview'
+                onError={() => {
+                  if (localPreviewRef.current && imagePreview !== localPreviewRef.current) {
+                    setImagePreview(localPreviewRef.current);
+                  }
+                }}
+                className='h-20 w-20 rounded-full object-cover ring-4 ring-emerald-50'
+              />
             ) : (
               <div className='flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-emerald-400 to-teal-500 text-white ring-4 ring-emerald-50'>
                 <User size={32} />
               </div>
             )}
-            <label htmlFor='profileImage' className='absolute -bottom-1 -right-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-white shadow-md hover:bg-emerald-600'>
+            <button type='button' onClick={() => setIsImageMenuOpen(true)} disabled={saving} aria-label='Change profile picture' className='absolute -bottom-1 -right-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-white shadow-md hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60'>
               <Camera size={15} />
-              <input id='profileImage' type='file' accept='image/*' onChange={handleImageChange} className='sr-only' />
-            </label>
+            </button>
+            <input ref={imageInputRef} id='profileImage' type='file' accept='image/*' onChange={handleImageChange} className='sr-only' />
           </div>
           <div>
             <h2 className='text-base font-semibold text-slate-900'>Profile picture</h2>
@@ -142,12 +181,20 @@ const ProfilePage = () => {
           </div>
         </div>
 
-      
-        <button type='submit' disabled={!profileImage || saving} className='inline-flex items-center gap-2 h-11 px-5 bg-linear-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed'>
-          <Camera size={16} />
-          {saving ? 'Saving...' : 'Save profile picture'}
-        </button>
-      </form>
+      </div>
+
+      <Modal isOpen={isImageMenuOpen} onClose={() => !saving && setIsImageMenuOpen(false)} title='Update profile picture'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:justify-end'>
+          <Button type='button' onClick={() => imageInputRef.current?.click()} disabled={saving}>
+            <ImagePlus size={16} />
+            Select photo
+          </Button>
+          <Button type='button' variant='secondary' onClick={handleRemovePhoto} disabled={saving} className='text-rose-600 hover:bg-rose-50'>
+            <Trash2 size={16} />
+            Remove photo
+          </Button>
+        </div>
+      </Modal>
 
       <form onSubmit={handlePasswordSubmit} className='mt-6 bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-xl shadow-slate-200/50 p-6 space-y-5'>
         <div>

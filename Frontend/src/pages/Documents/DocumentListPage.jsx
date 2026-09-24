@@ -93,29 +93,20 @@ const DocumentListPage = () => {
 
   const renderContent=()=>{
     if(loading){
-      return(
-        <div className='flex items-center justify-center min-h-100'>
-          <Spinner/>
-        </div>
-      );
+      return <Spinner />;
     }
     if(documents.length===0){
       return(
-        <div className='flex items-center justify-center min-h-400'>
-          <div className=' text-center max-w-md'>
-            <div className=' inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-linear-to-br from-slate-100 to-slate-200 shadow-lg shadow-slate-200/50 mb-6 '>
+        <div className='flex min-h-[calc(100vh-14rem)] items-center justify-center'>
+          <div className='max-w-md text-center'>
+            <div className='mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br from-slate-100 to-slate-200 shadow-lg shadow-slate-200/50'>
               <FileText
-              className=' w-10 h-10 text-slate-400'
+              className='h-10 w-10 text-slate-400'
               strokeWidth={1.5}
               />
             </div>
-            <h3 className='tetx-xl font-medium text-slate-900 traq mb-2'>No Documents yet</h3>
-            <p className='text-sm text-slate-500 mb-6'>Get started by uploading your first PDF document to begin learning</p>
-            <button className='inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-emerald-500 mask-t-to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-emerald-500/25 hover;shadow-xl hover:shadow-emerald-500/30 active:scale-[0.98]'
-              onClick={()=>setIsUploadModalOpen(true)}>
-              <Plus className="w-4 h-4" strokeWidth={2.5}/>
-              Upload document
-            </button>
+            <h3 className='mb-2 text-xl font-medium text-slate-900'>No Documents yet</h3>
+            <p className='mb-6 text-sm text-slate-500'>Get started by uploading your first PDF document to begin learning</p>
           </div>
         </div>
       );
@@ -135,7 +126,7 @@ const DocumentListPage = () => {
 
 
   return (
-    <div className='relative min-h-screen'>
+    <div className='relative min-h-full '>
       {/*Subtle background pattern */}
       <div className='absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[16px_16px] opacity-30 pointer-events-none' />
       <div className='relative max-w-7xl mx-auto'>
@@ -145,9 +136,6 @@ const DocumentListPage = () => {
               <h1 className='text-2xl font-medium text-slate-900 tracking-tight mb-2'>
                 My Documents
               </h1>
-              <p className='text-slate-500 text-sm'>
-                Organize your learning materials
-              </p>
             </div>
             <Button onClick={()=>setIsUploadModalOpen(true)}>
               <Plus className='w-4 h-4' strokeWidth={2.5}/>

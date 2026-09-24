@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import FlashcardManager from '../Quizzes/FlashcardManager';
+import FlashcardManager from './FlashcardManager';
 
 const FlashcardPage = () => {
   const { id } = useParams();

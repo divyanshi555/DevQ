@@ -8,7 +8,7 @@ import PageHeader from '../../components/common/PageHeader';
 import Tabs from '../../components/common/Tabs';
 import ChatInterface from '../../components/chat/ChatInterface';
 import AIActions from '../../components/ai/AIActions';
-import FlashcardManager from '../Quizzes/FlashcardManager';
+import FlashcardManager from '../Flashcards/FlashcardManager';
 import QuizManager from '../Quizzes/QuizManager';
 
 const DocumentDetailPage = () => {

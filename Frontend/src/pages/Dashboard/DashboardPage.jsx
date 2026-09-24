@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Spinner from '../../components/common/Spinner';
 import progressService from '../../services/progressService';
 import toast from 'react-hot-toast';
-import { FileText, BookOpen, BrainCircuit, TrendingUp, Clock } from 'lucide-react';
+import { FileText, BookOpen, Lightbulb, TrendingUp, Clock } from 'lucide-react';
 
 const DashboardPage = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -61,9 +61,9 @@ const DashboardPage = () => {
     {
       label: "Total Quizzes",
       value: dashboardData.overview.totalQuizzes,
-      icon: BrainCircuit,
-      gradient: 'from-emerald-400 to-teal-500',
-      shadowColor: 'shadow-emerald-500/25'
+      icon: Lightbulb,
+      gradient: 'from-amber-400 to-orange-500',
+      shadowColor: 'shadow-amber-500/25'
     }
   ];
 
@@ -101,8 +101,8 @@ const DashboardPage = () => {
           {/*Recent Activity Section */}
           <div className='bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-xl shadow-slate-200/50 p-8'>
             <div className='flex items-center gap-3 mb-6'>
-              <div className='w-10 h-10 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 items-center justify-center'>
-                <Clock className='w-5 h-5 to-slate-600' strokeWidth={2} />
+              <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-slate-100 to-slate-200'>
+                <Clock className='h-5 w-5 text-slate-600' strokeWidth={2} />
               </div>
               <h3 className='text-xl font-medium text-slate-900 tracking-tight'>
                 Recent Activity
@@ -114,7 +114,7 @@ const DashboardPage = () => {
                   ...(dashboardData.recentActivity.documents || []).map(doc => ({
                     id: doc._id,
                     description: doc.title,
-                    timestamp: doc.latestAccessed,
+                    timestamp: doc.lastAccessed,
                     link: `/documents/${doc._id}`,
                     type: 'document'
                   })),
@@ -122,34 +122,31 @@ const DashboardPage = () => {
                   ...(dashboardData.recentActivity.quizzes || []).map(quiz => ({
                     id: quiz._id,
                     description: quiz.title,
-                    timestamp: quiz.latestAccessed,
+                    timestamp: quiz.completedAt,
                     link: `/quizzes/${quiz._id}`,
                     type: 'quiz'
                   }))
                 ]
                   .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                   .map((activity, index) => ( 
-                    <div className='group flex items-center justify-between p-4 rounded-xl bg-slate-50/50 border border-slate-200/60 hover:bg-white hover:border-slate-300/60 hover:shadow-md transition-all duration-200' key={activity.id || index}>
-                      <div className=' flex-1 min-w-0'>
-                        <div className=' flex items-center gap-2 mb-1'>
-                          <div className={`w-2 h-2 rounded-full ${activity.type === 'document' ? 'bg-linear-to-r from-blue-400 to-cyan-500' : 'bg-linear-to-r from-emerald-400 to-teal-500'}`}>
-                            <p className='text-sm font-medium to-slate-900 truncate'>
-                              {activity.type === 'document' ? 'Accessed Document: ' : 'Attempted Quiz: '}
-                              <span className=' to-slate-700'>
-                                {activity.description}
-                              </span>
-                            </p>
-                          </div>
-                          <p className='text-xs text-slate-500 pl-4'>
-                            {new Date(activity.timestamp).toLocaleString()} 
+                    <div className='group flex items-center justify-between gap-4 p-4 rounded-xl bg-slate-50/50 border border-slate-200/60 hover:bg-white hover:border-slate-300/60 hover:shadow-md transition-all duration-200' key={activity.id || index}>
+                      <div className='flex items-start gap-3 min-w-0'>
+                        <div className={`mt-1.5 w-2 h-2 shrink-0 rounded-full ${activity.type === 'document' ? 'bg-cyan-500' : 'bg-emerald-500'}`} />
+                        <div className='min-w-0'>
+                          <p className='text-sm font-medium text-slate-900 truncate'>
+                            {activity.type === 'document' ? 'Accessed Document: ' : 'Attempted Quiz: '}
+                            <span className='text-slate-700'>{activity.description}</span>
+                          </p>
+                          <p className='text-xs text-slate-500 mt-1'>
+                            {new Date(activity.timestamp).toLocaleString()}
                           </p>
                         </div>
-                        {activity.link && (
-                          <a href={activity.link} className='ml-4 px-4 py-2 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all duration-200 whitespace-nowrap'>
-                            View
-                          </a>
-                        )}
                       </div>
+                      {activity.link && (
+                        <a href={activity.link} className='shrink-0 px-4 py-2 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all duration-200'>
+                          View
+                        </a>
+                      )}
                     </div>
                   ))}
               </div>

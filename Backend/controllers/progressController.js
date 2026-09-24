@@ -44,8 +44,8 @@ export const getDashboard = async (req, res, next) => {
       .limit(5)
       .select('title fileName lastAccessed status');
 
-    const recentQuizzes = await Quiz.find({ userId })
-      .sort({ createdAt: -1 })
+    const recentQuizzes = await Quiz.find({ userId, completedAt: { $ne: null } })
+      .sort({ completedAt: -1 })
       .limit(5)
       .populate('documentId', 'title')
       .select('title score totalQuestions completedAt');

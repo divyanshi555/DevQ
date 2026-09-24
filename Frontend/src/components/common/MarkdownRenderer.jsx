@@ -1,13 +1,16 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import {dracula} from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const MarkdownRenderer = ({ content }) => {
   return (
-    <div className='text-neutral-700'>
+    <div className='text-neutral-700 overflow-x-auto'>
       <ReactMarkdown
-        rehypePlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
         components={{
           h1: ({ node, ...props }) => <h1 className='text-xl font-bold mt-4 mb-2' {...props} />,
           h2: ({ node, ...props }) => <h2 className='text-lg font-bold mt-4 mb-2' {...props} />,
